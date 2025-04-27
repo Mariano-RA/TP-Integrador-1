@@ -1,6 +1,7 @@
 import random
 
-def seleccion_dificultad():    
+def seleccion_dificultad():
+    
     # Se selecciona la cantidad de bits dentro de las opciones disponibles (4, 5 o 6) y se lo coloca dentro de un while true para manejar los errores si no responde correctamente
     while True:
         try:
@@ -56,23 +57,18 @@ def formato_enunciado(operacion, A, B, dificultad):
 
 def operacion_aleatoria(dificultad):
     """
-    Genera una operación lógica aleatoria entre dos números binarios
-    y muestra el enunciado correspondiente al usuario
+    Genera una operación lógica binaria aleatoria entre dos números binarios
+    y muestra el enunciado correspondiente al usuario.
 
-    La operación seleccionada será una de las siguientes: 
-    'AND', 'OR', 'XOR', 'NOT'
+    La operación seleccionada será una de las siguientes: 'AND', 'OR', 'XOR', 'NOT'.
+    Los números binarios generados tienen una longitud determinada por el parámetro 'dificultad'.
+    Dependiendo de la operación y el resultado se calcula y se muestra al usuario como un enunciado.
     """
-
-    #La longitud de los binarios generados se genera en base a la dificultad elegida por el usuario
     
     bin1 = format(random.randint(0, 2**dificultad - 1), f'0{dificultad}b') 
     bin2 = format(random.randint(0, 2**dificultad - 1), f'0{dificultad}b') 
 
-    #Se utiliza random.choice() sobre la lista de operaciones para obtener una aleatoria
-
     compuerta = random.choice(["AND","OR","XOR","NOT"])
-
-    #Convertimos los numeros a decimales para poder realizar las operaciones 
 
     a_int = int(bin1, 2)
     b_int = int(bin2, 2)
