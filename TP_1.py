@@ -1,3 +1,5 @@
+import random
+
 def seleccion_dificultad():
     
     # Se selecciona la cantidad de bits dentro de las opciones disponibles (4, 5 o 6) y se lo coloca dentro de un while true para manejar los errores si no responde correctamente
@@ -52,6 +54,35 @@ def formato_enunciado(operacion, A, B, dificultad):
         enunciado = f"{A} {operacion} {B} --> ¿Cuál es el resultado en binario?"
     
     return enunciado
+
+def operacion_aleatoria(dificultad):
+    """
+    Genera una operación lógica binaria aleatoria entre dos números binarios
+    y muestra el enunciado correspondiente al usuario.
+
+    La operación seleccionada será una de las siguientes: 'AND', 'OR', 'XOR', 'NOT'.
+    Los números binarios generados tienen una longitud determinada por el parámetro 'dificultad'.
+    Dependiendo de la operación y el resultado se calcula y se muestra al usuario como un enunciado.
+    """
+    
+    bin1 = format(random.randint(0, 2**dificultad - 1), f'0{dificultad}b') 
+    bin2 = format(random.randint(0, 2**dificultad - 1), f'0{dificultad}b') 
+
+    compuerta = random.choice(["AND","OR","XOR","NOT"])
+
+    a_int = int(bin1, 2)
+    b_int = int(bin2, 2)
+    
+    if compuerta == 'AND':
+        resultado_correcto = format(a_int & b_int, f'0{len(bin1)}b')
+    elif compuerta == 'OR':
+        resultado_correcto = format(a_int | b_int, f'0{len(bin1)}b')
+    elif compuerta == 'XOR':
+        resultado_correcto = format(a_int ^ b_int, f'0{len(bin1)}b')
+    elif compuerta == 'NOT':
+        resultado_correcto = format(~a_int & (2**len(bin1)-1), f'0{len(bin1)}b')
+
+    return formato_enunciado(compuerta, bin1, bin2, dificultad), resultado_correcto
 
 def ejecutar_juego(dificultad, cant_partidas):
     
