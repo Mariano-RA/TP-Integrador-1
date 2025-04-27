@@ -1,5 +1,6 @@
-def seleccion_dificultad():
-    
+import random
+
+def seleccion_dificultad():    
     # Se selecciona la cantidad de bits dentro de las opciones disponibles (4, 5 o 6) y se lo coloca dentro de un while true para manejar los errores si no responde correctamente
     while True:
         try:
@@ -27,33 +28,92 @@ def seleccion_dificultad():
     # Se retornan los valores de dificultad y cantidad de partidas que el usuario selecciono
     return dificultad, cant_partidas
 
-
 def formato_enunciado(operacion, A, B, dificultad):
     """
     Formatea y muestra el enunciado de la operación binaria.
-
+    
     Args:
-        operacion: String con la operación a realizar ('AND', 'OR', 'XOR', etc.)
+        operacion: String con la operación a realizar ('AND', 'OR', 'XOR', 'NOT', etc.)
         A: Primer número binario (en formato string)
-        B: Segundo número binario (en formato string)
+        B: Segundo número binario (en formato string) - No usado para NOT
         dificultad: Número de bits utilizados
-
+    
     Returns:
         Un string con el enunciado formateado para mostrar al usuario
     """
-    # Asegurar que los números tengan el formato correcto según la dificultad
-    A = A.zfill(dificultad)
-    B = B.zfill(dificultad)
-
-    # Crear el enunciado según el tipo de operación
-    enunciado = f"{A} {operacion} {B} --> ¿Cuál es el resultado en binario?"
-
+    # Caso especial para NOT (operación unaria)
+    if operacion == "NOT":
+        # Para NOT, solo utilizamos A con el formato correcto
+        A = A.zfill(dificultad)
+        enunciado = f"{operacion} {A} --> ¿Cuál es el resultado en binario?"
+    else:
+        # Para operaciones binarias, utilizamos ambos valores con formato correcto
+        A = A.zfill(dificultad)
+        B = B.zfill(dificultad)
+        enunciado = f"{A} {operacion} {B} --> ¿Cuál es el resultado en binario?"
+    
     return enunciado
+
+def operacion_aleatoria(dificultad):
+    """
+    Genera una operación lógica binaria aleatoria entre dos números binarios
+    y muestra el enunciado correspondiente al usuario.
+
+    La operación seleccionada será una de las siguientes: 'AND', 'OR', 'XOR', 'NOT'.
+    Los números binarios generados tienen una longitud determinada por el parámetro 'dificultad'. Dependiendo de la operación, el resultado se calcula y se muestra al usuario como un enunciado.
+    """
+    
+    bin1 = format(random.randint(0, 2**dificultad - 1), f'0{dificultad}b') 
+    bin2 = format(random.randint(0, 2**dificultad - 1), f'0{dificultad}b') 
+
+    compuerta = random.choice(["AND","OR","XOR","NOT"])
+
+    a_int = int(bin1, 2)
+    b_int = int(bin2, 2)
+
+    print(f"Operación: {bin1} {compuerta} {bin2 if compuerta != 'NOT' else ''}")
+    
+    if compuerta == 'AND':
+        resultado_correcto = format(a_int & b_int, f'0{len(bin1)}b')
+    elif compuerta == 'OR':
+        resultado_correcto = format(a_int | b_int, f'0{len(bin1)}b')
+    elif compuerta == 'XOR':
+        resultado_correcto = format(a_int ^ b_int, f'0{len(bin1)}b')
+    elif compuerta == 'NOT':
+        resultado_correcto = format(~a_int & (2**len(bin1)-1), f'0{len(bin1)}b')
+
+    return formato_enunciado(compuerta, bin1, bin2, dificultad), resultado_correcto
+
+def mostrar_progreso(contador_partidas, cant_partidas):
+    """
+    Muestra el progreso del jugador.
+    """
+    print(f'Posición: {contador_partidas}')
+    print(f'Quedan {cant_partidas - contador_partidas} partidas para ganar!!')
+
+def preguntar_finalizar(contador_partidas_perdidas, cant_partidas):
+    """
+    Pregunta al jugador si desea finalizar el juego si falló varias veces, comparando la cantidad de partidas perdidas con la cantidad de partidas a seleccionadas para jugar por el usuario
+    
+    Args:
+        contador_partidas_perdidas: Número de partidas perdidas acumuladas.
+        
+    Returns:
+        True si el jugador quiere finalizar, False si quiere seguir.
+    """
+
+    if contador_partidas_perdidas > cant_partidas:
+        respuesta = input("\nParece que estás teniendo dificultades... ¿Querés terminar el juego? (s/n): ").strip().lower()
+        while respuesta != 's' and respuesta != 'n':
+            respuesta = input("Por favor responde 's' (sí) o 'n' (no): ").strip().lower()
+        return respuesta == 's'
+    return False
 
 def ejecutar_juego(dificultad, cant_partidas):
     
     #Inicializa la posicion en 1 para el contador de partidas
     contador_partidas = 1
+    contador_partidas_perdidas = 0
 
     print("Bienvenidos al desafio de Operaciones Binarias y Numeros Binarios!!!")
     print(f'Seleccionaste jugar con {dificultad} bits! Cada respuesta correcta avanzas 1 posición y cada incorrecta te hace retroceder, llega a la posición {cant_partidas} para ganar!!' )
@@ -63,7 +123,8 @@ def ejecutar_juego(dificultad, cant_partidas):
         # Llama a la funcion operacion_aleatoria y le pasa por parametro la dificultad para devolver el enunciado a mostrar por pantalla y la respuesta correcta.
         enunciado, resultado_correcto = operacion_aleatoria(dificultad)
         
-        print(f'Posición: {contador_partidas}')
+        mostrar_progreso(contador_partidas, cant_partidas)
+
         print(enunciado)
 
         # Solicita la respuesta al usuario, se le hace strip si por accidente apreta un espacio. 
@@ -78,11 +139,15 @@ def ejecutar_juego(dificultad, cant_partidas):
         else:
             contador_partidas = max(1, contador_partidas - 1)
             print (f'Mala suerte! la respuesta correcta era: {resultado_correcto}. Retrocedes a la posicion {contador_partidas}. A meterle ganas pichón.')
+            contador_partidas_perdidas += 1
+
+            # Verificar si quiere finalizar
+            if preguntar_finalizar(contador_partidas_perdidas, cant_partidas):
+                print("No pasa nada, ¡la próxima te va a ir mejor! Juego finalizado.")
+                return
     
     # Finalizado el juego saca un print notificando al usuario y felicitandolo.
     print(f'Felicitaciones!!! Lograste completar el desafio!! Hasta el próximo trabajo práctico!')
-
-
 
 if __name__ == "__main__":
     dificultad, cant_partidas = seleccion_dificultad()
