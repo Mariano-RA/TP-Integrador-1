@@ -27,27 +27,30 @@ def seleccion_dificultad():
     # Se retornan los valores de dificultad y cantidad de partidas que el usuario selecciono
     return dificultad, cant_partidas
 
-
 def formato_enunciado(operacion, A, B, dificultad):
     """
     Formatea y muestra el enunciado de la operación binaria.
-
+    
     Args:
-        operacion: String con la operación a realizar ('AND', 'OR', 'XOR', etc.)
+        operacion: String con la operación a realizar ('AND', 'OR', 'XOR', 'NOT', etc.)
         A: Primer número binario (en formato string)
-        B: Segundo número binario (en formato string)
+        B: Segundo número binario (en formato string) - No usado para NOT
         dificultad: Número de bits utilizados
-
+    
     Returns:
         Un string con el enunciado formateado para mostrar al usuario
     """
-    # Asegurar que los números tengan el formato correcto según la dificultad
-    A = A.zfill(dificultad)
-    B = B.zfill(dificultad)
-
-    # Crear el enunciado según el tipo de operación
-    enunciado = f"{A} {operacion} {B} --> ¿Cuál es el resultado en binario?"
-
+    # Caso especial para NOT (operación unaria)
+    if operacion == "NOT":
+        # Para NOT, solo utilizamos A con el formato correcto
+        A = A.zfill(dificultad)
+        enunciado = f"{operacion} {A} --> ¿Cuál es el resultado en binario?"
+    else:
+        # Para operaciones binarias, utilizamos ambos valores con formato correcto
+        A = A.zfill(dificultad)
+        B = B.zfill(dificultad)
+        enunciado = f"{A} {operacion} {B} --> ¿Cuál es el resultado en binario?"
+    
     return enunciado
 
 def ejecutar_juego(dificultad, cant_partidas):
