@@ -84,20 +84,55 @@ def operacion_aleatoria(dificultad):
 
     return formato_enunciado(compuerta, bin1, bin2, dificultad), resultado_correcto
 
-def ejecutar_juego(dificultad, cant_partidas):
+def mostrar_progreso(contador_partidas, cant_partidas):
+    
+    #Funcion que formatea la posicion del jugador y la cantidad de partidas restantes
+
+    print(f'Posición: {contador_partidas}')
+    print(f'Necesitas {cant_partidas - contador_partidas} partidas para ganar!!\n')
+
+def preguntar_finalizar(contador_partidas_perdidas, dificultad):
+
+    # Se reciben la cantidad de partidas perdidas y la dificultad, con esos datos se define la cantidad de errores tolerados
+
+    if dificultad == 4:
+        errores_tolerados = 3
+    elif dificultad == 5:
+        errores_tolerados = 4
+    else:
+        errores_tolerados = 5
+
+    if contador_partidas_perdidas >= errores_tolerados:
+
+        #Si vemos que el contador de partidas perdidas es mayor o igual a los errores tolerados le vamos a consultar al usuario si le gustaria continuar o no
+
+        respuesta = input("\nParece que estás teniendo dificultades... ¿Querés terminar el juego? (s/n): ").strip().lower()
+        while respuesta != 's' and respuesta != 'n':
+            respuesta = input("Por favor responde 's' (sí) o 'n' (no): ").strip().lower()
+        return respuesta == 's'
+    return False
+
+def ejecutar_juego():
     
     #Inicializa la posicion en 1 para el contador de partidas
     contador_partidas = 1
+    contador_partidas_perdidas = 0
 
-    print("Bienvenidos al desafio de Operaciones Binarias y Numeros Binarios!!!")
-    print(f'Seleccionaste jugar con {dificultad} bits! Cada respuesta correcta avanzas 1 posición y cada incorrecta te hace retroceder, llega a la posición {cant_partidas} para ganar!!' )
+    print("-------------------------------------------------------------------------------------")
+    print("Bienvenidos al desafio de Operaciones Booleanas y Numeros Binarios!!!")
+    print("-------------------------------------------------------------------------------------")
+
+    dificultad, cant_partidas = seleccion_dificultad()
+
+    print(f'\n\nSeleccionaste jugar con {dificultad} bits! Cada respuesta correcta avanzas 1 posición y cada incorrecta te hace retroceder, llega a la posición {cant_partidas} para ganar!!\n' )
     
     while contador_partidas < cant_partidas:
 
         # Llama a la funcion operacion_aleatoria y le pasa por parametro la dificultad para devolver el enunciado a mostrar por pantalla y la respuesta correcta.
         enunciado, resultado_correcto = operacion_aleatoria(dificultad)
         
-        print(f'Posición: {contador_partidas}')
+        mostrar_progreso(contador_partidas, cant_partidas)
+
         print(enunciado)
 
         # Solicita la respuesta al usuario, se le hace strip si por accidente apreta un espacio. 
@@ -108,16 +143,19 @@ def ejecutar_juego(dificultad, cant_partidas):
         # Si es correcta, se suma uno al contador de partidas y vuelve a empezar, si es incorrecta resta al contador.
         if respuesta == resultado_correcto:
             contador_partidas += 1
-            print(f'Excelente!! Respuesta correcta, avanzas una posición, quedan {cant_partidas - contador_partidas}')
+            print(f'\nExcelente!! Respuesta correcta, avanzas una posición, quedan {cant_partidas - contador_partidas}')
         else:
             contador_partidas = max(1, contador_partidas - 1)
             print (f'Mala suerte! la respuesta correcta era: {resultado_correcto}. Retrocedes a la posicion {contador_partidas}. A meterle ganas pichón.')
+            contador_partidas_perdidas += 1
+
+            # Verificar si quiere finalizar
+            if preguntar_finalizar(contador_partidas_perdidas, dificultad):
+                print("No pasa nada, la próxima te va a ir mejor!! Juego finalizado.")
+                return
     
     # Finalizado el juego saca un print notificando al usuario y felicitandolo.
     print(f'Felicitaciones!!! Lograste completar el desafio!! Hasta el próximo trabajo práctico!')
 
-
-
 if __name__ == "__main__":
-    dificultad, cant_partidas = seleccion_dificultad()
-    ejecutar_juego(dificultad, cant_partidas)
+    ejecutar_juego()
